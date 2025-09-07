@@ -23,20 +23,13 @@ app.use(express.json());
 dbConnection();
 
 // API routes
-app.use("/auth/api/v1", authRoute);
-app.use("/group/api/v1", groupRoute);
 
 // ✅ Serve React frontend
 const frontendPath = path.join(__dirname, "./dist"); // safer: go up 1 level
-app.use(
-  express.static(frontendPath, {
-    setHeaders: (res, filePath) => {
-      if (filePath.endsWith(".js")) {
-        res.setHeader("Content-Type", "application/javascript");
-      }
-    },
-  })
-);
+app.use(express.static(frontendPath));
+
+app.use("/auth/api/v1", authRoute);
+app.use("/group/api/v1", groupRoute);
 
 // ✅ Catch-all route must come *after* static + API routes
 app.get("*", (req, res) => {
