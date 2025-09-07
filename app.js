@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "*", // ✅ Vercel will auto-handle frontend origin
+    origin: true, // ✅ Vercel will auto-handle frontend origin
     credentials: true,
   })
 );
