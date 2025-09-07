@@ -1,13 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
-import express, { urlencoded } from "express";
+import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import dbConnection from "./connection/mongodb.connection.js"; // updated path
+import dbConnection from "./connection/mongodb.connection.js";
 import authRoute from "./routes/authentication.routes.js";
 import { Internal } from "./utils/ErrorTypesCode.js";
 import cookieParser from "cookie-parser";
-import cors from "cors";
 import groupRoute from "./routes/group.routes.js";
 
 const app = express();
@@ -17,14 +16,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cookieParser());
-
-// app.use(
-//   cors({
-//     origin: true, // ✅ Vercel will auto-handle frontend origin
-//     credentials: true,
-//   })
-// );
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -35,10 +26,19 @@ dbConnection();
 app.use("/auth/api/v1", authRoute);
 app.use("/group/api/v1", groupRoute);
 
-// Serve frontend
-const frontendPath = path.join(__dirname, "./dist");
-app.use(express.static(frontendPath));
+// ✅ Serve React frontend
+const frontendPath = path.join(__dirname, "../dist"); // safer: go up 1 level
+app.use(
+  express.static(frontendPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".js")) {
+        res.setHeader("Content-Type", "application/javascript");
+      }
+    },
+  })
+);
 
+// ✅ Catch-all route must come *after* static + API routes
 app.get("*", (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
