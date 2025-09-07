@@ -18,12 +18,12 @@ const __dirname = path.dirname(__filename);
 
 app.use(cookieParser());
 
-app.use(
-  cors({
-    origin: true, // ✅ Vercel will auto-handle frontend origin
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: true, // ✅ Vercel will auto-handle frontend origin
+//     credentials: true,
+//   })
+// );
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
