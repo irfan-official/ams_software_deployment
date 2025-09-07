@@ -38,21 +38,16 @@ app.get("*", (req, res) => {
 
 // Error handler
 app.use((error, req, res, next) => {
-  console.log("Error ==> ", error.message);
+  console.error("Error ==> ", error);
 
-  if (error.ErrorTypes === Internal) {
-    return res.status(error.statusCode || 400).json({
-      redirect: false,
-      success: false,
-      message: error.message,
-    });
-  } else {
-    return res.status(error.statusCode || 500).json({
-      redirect: true,
-      success: false,
-      message: error.message,
-    });
-  }
+  const status = error.statusCode || 500;
+  const message = error.message || "Internal Server Error";
+
+  res.status(status).json({
+    redirect: error.ErrorTypes === Internal ? false : true,
+    success: false,
+    message,
+  });
 });
 
 const port = Number(process.env.PORT) || 8000;

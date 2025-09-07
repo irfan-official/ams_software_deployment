@@ -2,9 +2,14 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import { Internal, External } from "../utils/ErrorTypesCode.js";
 import CustomError from "../utils/ErrorHandling.js";
-import { default_genderMale_supervisor_image, default_genderFemale_supervisor_image, default_genderOthers_supervisor_image, defaultault_genderInitial_all_image } from "../utils/imagesChoise.js"
+import {
+  default_genderMale_supervisor_image,
+  default_genderFemale_supervisor_image,
+  default_genderOthers_supervisor_image,
+  default_genderInitial_all_image,
+} from "../utils/imagesChoise.js";
 
-const supervisorSchema = mongoose.Schema(
+const supervisorSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -18,9 +23,8 @@ const supervisorSchema = mongoose.Schema(
     gender: {
       type: String,
       enum: ["male", "female", "others", "initial"],
-      default: "initial"
+      default: "initial",
     },
-
     groups: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -45,38 +49,38 @@ const supervisorSchema = mongoose.Schema(
       trim: true,
     },
   },
-  { Timestamp: true }
+  { timestamps: true } // fixed typo
 );
 
+// Pre-save hook
 supervisorSchema.pre("save", async function (next) {
   try {
-
-    // ----- changes to image field if it is not presence -----
-
+    // Assign default image if missing
     if (!this.image) {
-      if (this.gender === "male") {
+      if (this.gender === "male")
         this.image = default_genderMale_supervisor_image;
-      } else if (this.gender === "female") {
+      else if (this.gender === "female")
         this.image = default_genderFemale_supervisor_image;
-      } else if(this.gender === "others") {
+      else if (this.gender === "others")
         this.image = default_genderOthers_supervisor_image;
-      }else {
-        this.image = defaultault_genderInitial_all_image;
-      }
+      else this.image = default_genderInitial_all_image;
     }
 
-     // ----- changes to password field if it is not modified -----
-
+    // Hash password only if modified
     if (!this.isModified("password")) return next();
 
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
+
     next();
   } catch (err) {
-    next(new CustomError("Internal server Error", 500, External));
+    next(
+      new CustomError("Internal server error during pre-save", 500, Internal)
+    );
   }
 });
 
+// Compare password method
 supervisorSchema.methods.comparePassword = async function (candidatePassword) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
@@ -86,5 +90,4 @@ supervisorSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 const Supervisor = mongoose.model("Supervisor", supervisorSchema);
-
 export default Supervisor;
