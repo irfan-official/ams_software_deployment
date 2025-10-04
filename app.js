@@ -39,7 +39,7 @@ app.get("*", (req, res) => {
 // Error handler
 app.use((error, req, res, next) => {
   console.error("Error ==> ", error);
-
+  a;
   const status = error.statusCode || 500;
   const message = error.message || "Internal Server Error";
 
