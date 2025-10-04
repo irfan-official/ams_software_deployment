@@ -25,7 +25,7 @@ dbConnection();
 // API routes
 
 // ✅ Serve React frontend
-const frontendPath = path.join(__dirname, "./newdist"); // safer: go up 1 level
+const frontendPath = path.join(__dirname, "./dist"); // safer: go up 1 level
 app.use(express.static(frontendPath));
 
 app.use("/auth/api/v1", authRoute);
